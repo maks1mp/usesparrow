@@ -1,21 +1,19 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import {getCasesData} from "@/lib/data";
+import { NextRequest, NextResponse } from 'next/server';
+import { getCasesData } from '@/lib/data';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
-        const { page = '1', pageSize = '10' } = req.query;
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
 
-        // Ensure query parameters are parsed as numbers
-        const pageNumber = parseInt(page as string, 10);
-        const pageSizeNumber = parseInt(pageSize as string, 10);
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const pageSize = parseInt(searchParams.get('pageSize') || '10', 10);
 
-        if (isNaN(pageNumber) || isNaN(pageSizeNumber)) {
-            return res.status(400).json({ error: 'Invalid pagination parameters' });
-        }
+  if (isNaN(page) || isNaN(pageSize)) {
+    return NextResponse.json(
+      { error: 'Invalid pagination parameters' },
+      { status: 400 },
+    );
+  }
 
-        const casesData = await getCasesData(pageNumber, pageSizeNumber);
-        return res.status(200).json(casesData);
-    } else {
-        return res.status(405).json({ error: 'Method Not Allowed' });
-    }
+  const casesData = await getCasesData(page, pageSize);
+  return NextResponse.json(casesData, { status: 200 });
 }

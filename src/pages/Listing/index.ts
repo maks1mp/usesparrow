@@ -1,3 +1,3 @@
-import Home from './Home'
+import Listing from './Listing';
 
-export default Home
+export default Listing;
